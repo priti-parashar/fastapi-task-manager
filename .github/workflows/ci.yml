@@ -23,6 +23,9 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Check app imports correctly
+            - name: Check app imports correctly
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
         run: |
           python -c "import main"
