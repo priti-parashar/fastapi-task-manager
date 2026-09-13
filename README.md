@@ -35,3 +35,5 @@ A RESTful task management API built with FastAPI, featuring JWT authentication, 
 - `PUT /tasks/{id}` — update a task
 - `DELETE /tasks/{id}` — delete a task
 
+
+
