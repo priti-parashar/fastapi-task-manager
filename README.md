@@ -1,69 +1,108 @@
 # FastAPI Task Manager
 
-[![CI](https://github.com/priti-parashar/fastapi-task-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/priti-parashar/fastapi-task-manager/actions/workflows/ci.yml)
-
-A RESTful task management API built with FastAPI, featuring JWT authentication, PostgreSQL, and Redis caching.
+A REST API for managing user-specific tasks, built with FastAPI, PostgreSQL, SQLAlchemy, Redis and JWT authentication.
 
 ## Features
-- User registration & login with JWT authentication
-- Create, read, update, delete tasks (CRUD)
-- Task ownership — users only see their own tasks
-- PostgreSQL database (via SQLAlchemy)
-- Redis caching for faster task retrieval, with automatic cache invalidation on writes
-- Automated test suite (pytest) covering auth flow and all task endpoints
-- CI pipeline (GitHub Actions) running tests against real PostgreSQL and Redis services on every push
+
+- User registration and login
+- Password hashing with bcrypt
+- JWT authentication
+- Protected task endpoints
+- User-specific task ownership
+- Create, read, update and delete tasks
+- PostgreSQL persistence with SQLAlchemy
+- Redis caching with cache invalidation
+- Pydantic request and response validation
+- Automated testing with pytest
+- GitHub Actions CI
+- Docker support
 
 ## Tech Stack
-- **Framework:** FastAPI
-- **Database:** PostgreSQL (Neon)
-- **Cache:** Redis (Upstash)
-- **Auth:** JWT (JSON Web Tokens)
-- **Testing:** pytest
-- **CI/CD:** GitHub Actions
+
+- Python
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Redis
+- Pydantic
+- JWT
+- pytest
+- Docker
+- GitHub Actions
 
 ## Setup
 
-1. Clone the repo
-   ```
-   git clone https://github.com/priti-parashar/fastapi-task-manager.git
-   cd fastapi-task-manager
-   ```
+Clone the repository:
 
-2. Create a virtual environment and install dependencies
-   ```
-   python -m venv .venv
-   .venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+```bash
+git clone https://github.com/priti-parashar/fastapi-task-manager.git
+cd fastapi-task-manager
+```
 
-3. Create a `.env` file with:
-   ```
-   DATABASE_URL=postgresql://user:password@host:5432/dbname
-   REDIS_URL=redis://localhost:6379/0
-   ```
+Create a virtual environment:
 
-4. Run the server
-   ```
-   uvicorn main:app --reload
-   ```
+```bash
+python -m venv .venv
+```
 
-5. Visit `http://127.0.0.1:8000/docs` for the interactive API docs
+Activate it on Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create a `.env` file based on `.env.example`.
+
+Required environment variables:
+
+```env
+DATABASE_URL=postgresql+psycopg://username:password@localhost:5432/taskmanager
+REDIS_URL=redis://localhost:6379/0
+SECRET_KEY=your-secret-key
+```
+
+Run the application:
+
+```bash
+uvicorn main:app --reload
+```
+
+Open the API documentation:
+
+`http://127.0.0.1:8000/docs`
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/register` | Register a user |
+| POST | `/login` | Login and receive a JWT |
+| GET | `/tasks` | Get the current user's tasks |
+| POST | `/tasks` | Create a task |
+| PUT | `/tasks/{task_id}` | Update a task |
+| DELETE | `/tasks/{task_id}` | Delete a task |
+
+Task endpoints require a valid bearer token.
 
 ## Running Tests
 
-```
+```bash
 pytest
 ```
 
-Tests run automatically on every push via GitHub Actions, using live PostgreSQL and Redis service containers.
+## CI
 
-## API Endpoints
-- `POST /register` — create a new user
-- `POST /login` — get JWT access token
-- `GET /tasks` — get logged-in user's tasks
-- `POST /tasks` — create a task
-- `PUT /tasks/{id}` — update a task
-- `DELETE /tasks/{id}` — delete a task
+GitHub Actions automatically runs linting, tests and a Docker build on pushes to `main` and on pull requests.
+
+## Security
+
+Passwords are hashed before storage. Protected endpoints require JWT authentication, and users can only modify their own tasks. Secrets and database credentials are supplied through environment variables and are not committed to the repository.
 
 
 
