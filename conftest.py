@@ -1,4 +1,1 @@
-import sys
-import os
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Shared pytest fixtures can be added here in the future.
