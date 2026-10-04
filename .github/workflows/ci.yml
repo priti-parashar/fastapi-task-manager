@@ -2,12 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:15
@@ -18,10 +20,11 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U testuser -d testdb"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
       redis:
         image: redis:7
         ports:
@@ -33,25 +36,27 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+      DATABASE_URL: postgresql+psycopg://testuser:testpass@localhost:5432/testdb
       REDIS_URL: redis://localhost:6379/0
-      SECRET_KEY: test-secret-key   # dummy value, never a real secret
+      SECRET_KEY: github-actions-test-secret-key
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt -r requirements-dev.txt
+        run: pip install -r requirements.txt
 
       - name: Lint
         run: ruff check .
 
-      - name: Run tests with coverage
+      - name: Run tests
         run: pytest --cov=. --cov-report=term-missing
 
       - name: Build Docker image
