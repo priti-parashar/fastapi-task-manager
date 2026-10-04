@@ -2,10 +2,11 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -31,22 +32,27 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    env:
+      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+      REDIS_URL: redis://localhost:6379/0
+      SECRET_KEY: test-secret-key   # dummy value, never a real secret
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          cache: pip
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt -r requirements-dev.txt
 
-      - name: Check app imports correctly
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
-        run: |
-          pytest
+      - name: Lint
+        run: ruff check .
+
+      - name: Run tests with coverage
+        run: pytest --cov=. --cov-report=term-missing
+
+      - name: Build Docker image
+        run: docker build -t task-manager .
